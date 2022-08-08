@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     @State var isFirstNum = true
+    @State var hasDot = false
     @State var displayNum = ""
     @State var firstNum: Double = 0
     @State var secondNum: Double = 0
@@ -19,143 +20,106 @@ struct ContentView: View {
         case division
     }
     @State var mode: OperandType = .plus
+    let buttonWidth: CGFloat = ( UIScreen.main.bounds.width - 50)/4
+    let items: [[String]] = [
+        ["AC", "±", "÷"],
+        ["7", "8", "9", "×"],
+        ["4", "5", "6", "-"],
+        ["1", "2", "3", "+"],
+        ["0", ".", "="]
+    ]
+    let numbers: [String] = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+    let symbols: [String] = ["+", "-", "×", "÷","="]
+    let functions: [String] = ["AC", "±", "."]
     
     var body: some View {
         VStack{
-            Text(displayNum)
-                .bold()
-                .font(.largeTitle)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .trailing)
-                .padding()
-                //.background(.gray)
-                .background(Color.init(red: 0.9, green: 0.9, blue: 0.9))
-            Spacer()
+            ZStack{
+                Text(displayNum)
+                    .bold()
+                    .font(.largeTitle)
+                    .padding()
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .trailing)
+            .background(Color.init(red: 0.9, green: 0.9, blue: 0.9))
+            
             VStack{
-                HStack{
-                    Button(action: {
-                        addNum(num: "7")
-                    }, label: {
-                        Image(systemName: "7.square.fill")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                    })
-                    Button(action: {
-                        addNum(num: "8")
-                    }, label: {
-                        Image(systemName: "8.square.fill")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                    })
-                    Button(action: {
-                        addNum(num: "9")
-                    }, label: {
-                        Image(systemName: "9.square.fill")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                    })
-                    Button(action: {
-                        chooseOperand(mode: .division)
-                    }, label: {
-                        Image(systemName: "divide.square.fill")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                    })
-                }
-                HStack{
-                    Button(action: {
-                        addNum(num: "4")
-                    }, label: {
-                        Image(systemName: "4.square.fill")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                    })
-                    Button(action: {
-                        addNum(num: "5")
-                    }, label: {
-                        Image(systemName: "5.square.fill")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                    })
-                    Button(action: {
-                        addNum(num: "6")
-                    }, label: {
-                        Image(systemName: "6.square.fill")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                    })
-                    Button(action: {
-                        chooseOperand(mode: .multiplication)
-                    }, label: {
-                        Image(systemName: "multiply.square.fill")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                    })
-                }
-                HStack{
-                    Button(action: {
-                        addNum(num: "1")
-                    }, label: {
-                        Image(systemName: "1.square.fill")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                    })
-                    Button(action: {
-                        addNum(num: "2")
-                    }, label: {
-                        Image(systemName: "2.square.fill")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                    })
-                    Button(action: {
-                        addNum(num: "3")
-                    }, label: {
-                        Image(systemName: "3.square.fill")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                    })
-                    Button(action: {
-                        chooseOperand(mode: .minus)
-                    }, label: {
-                        Image(systemName: "minus.square.fill")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                    })
-                }
-                HStack{
-                    Button(action: {
-                        addNum(num: "0")
-                    }, label: {
-                        Image(systemName: "0.square.fill")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                    })
-                    Button(action: {
-                        clear()
-                    }, label: {
-                        Image(systemName: "c.square.fill")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                    })
-                    Button(action: {
-                        calcResult()
-                    }, label: {
-                        Image(systemName: "equal.square.fill")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                    })
-                    Button(action: {
-                        chooseOperand(mode: .plus)
-                    }, label: {
-                        Image(systemName: "plus.square.fill")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                    })
+                ForEach(items, id: \.self){ lineItem in
+                    HStack{
+                        ForEach(lineItem, id: \.self){ item in
+                            Button(action: {
+                                clickButton(item: item)
+                            }, label: {
+                                ZStack{
+                                    if item == "AC" || item == "0"{
+                                        Rectangle()
+                                            .frame(width: buttonWidth * 2 + 10, height: buttonWidth)
+                                    }else{
+                                        Rectangle()
+                                            .frame(width: buttonWidth, height: buttonWidth)
+                                    }
+                                    Text(item)
+                                        .bold()
+                                        .scaledToFit()
+                                        .foregroundColor(.white)
+                                        .font(.largeTitle)
+                                }
+                                .foregroundColor(colorSelecter(item: item))
+                                
+                            })
+                            .cornerRadius(16)
+                            
+                        }
+                    }
                 }
             }
             .scaledToFill()
-            //.frame(height: UIScreen.main.bounds.height * (3/5) , alignment: .bottom)
-            //.frame(minHeight: UIScreen.main.bounds.width*(4/4), alignment: .bottom)
-            .padding()
+            .padding(.bottom)
+        }
+        .navigationBarTitle("Calculator", displayMode: .inline)
+        
+    }
+    
+    //小数点は例外で青色
+    func colorSelecter(item: String) -> Color{
+        var buttonColor: Color = .blue
+        if(numbers.contains(item) || item == "."){
+            buttonColor = .blue
+        }else if symbols.contains(item){
+            buttonColor = .orange
+        }else{
+            buttonColor = .gray
+        }
+        return buttonColor
+    }
+    
+    func clickButton(item: String){
+        if numbers.contains(item){
+            addNum(num: item)
+        }else if symbols.contains(item) || functions.contains(item){
+            switch item{
+            case "+":
+                chooseOperand(mode: .plus)
+            case "-":
+                chooseOperand(mode: .minus)
+            case "×":
+                chooseOperand(mode: .multiplication)
+            case "÷":
+                chooseOperand(mode: .division)
+            case "=":
+                calcResult()
+            case "AC":
+                clear()
+            case "±":
+                break;
+            case ".":
+                if(hasDot == false){
+                    displayNum += "."
+                    hasDot = true
+                }
+            default:
+                chooseOperand(mode: .plus)
+            }
         }
     }
     
@@ -171,6 +135,7 @@ struct ContentView: View {
         }
         
         isFirstNum = false
+        hasDot = false
         displayNum = ""
         self.mode = mode
     }
@@ -198,24 +163,28 @@ struct ContentView: View {
         clear()
         
         if let resultUnwarap = result {
-            displayNum = String(resultUnwarap)
+            if(resultUnwarap == floor(resultUnwarap)){
+                displayNum = String(Int(resultUnwarap))
+            }else{
+                displayNum = String(resultUnwarap)
+            }
         }else{
             displayNum = "error"
         }
     }
-
+    
     func calcPlus(a: Double, b: Double ) -> Double{
         return a + b
     }
-
+    
     func calcMinus(a: Double, b: Double ) -> Double{
         return a - b
     }
-
+    
     func calcMultiplication(a: Double, b: Double ) -> Double{
         return a * b
     }
-
+    
     func calcDivision(a: Double, b: Double ) -> Double?{
         if b == 0 { return nil }
         return a / b
@@ -224,11 +193,11 @@ struct ContentView: View {
     func clear(){
         displayNum = ""
         isFirstNum = true
+        hasDot = false
         firstNum = 0
         secondNum = 0
     }
 }
-
 
 
 struct ContentView_Previews: PreviewProvider {
